@@ -152,7 +152,8 @@ class WCSPConverter(object):
         seen = set()
         varindices_ = []
         for v in varindices:
-            if v in seen: continue
+            if v in seen:
+                continue
             varindices_.append(v)
             seen.add(v)
         varindices = tuple(varindices_)
@@ -194,12 +195,14 @@ class WCSPConverter(object):
             children = list(formula.literals())
             for gndlit in children:
                 # constants are handled in the maxtruth/mintruth calls below
-                if isinstance(gndlit, Logic.TrueFalse): continue
+                if isinstance(gndlit, Logic.TrueFalse):
+                    continue
                 # get the value of the gndlit that renders the formula true (conj) or false (disj):
                 # for a conjunction, the literal must be true,
                 # for a disjunction, it must be false.
                 (gndatom, val) = (gndlit.gndatom, not gndlit.negated)
-                if disj: val = not val
+                if disj:
+                    val = not val
                 val = 1 if val else 0
                 variable = self.variables[self.atom2var[gndatom.idx]]
                 # in case there are multiple values of a variable that may render the formula true
@@ -256,7 +259,8 @@ class WCSPConverter(object):
             cost2assignments = defaultdict(list)
             # compute number of worlds to be examined and print a warning
             worlds = 1
-            for d in domains: worlds *= len(d)
+            for d in domains:
+                worlds *= len(d)
             if worlds > 1000000:
                 logger.warning('!!! WARNING: %d POSSIBLE WORLDS ARE GOING TO BE EVALUATED. KEEP IN SIGHT YOUR MEMORY CONSUMPTION !!!' % worlds)
             for c in combinations(domains):
@@ -330,14 +334,16 @@ class WCSPConverter(object):
         try:
             while len(valIndices) > 0:
                 s, c = wcsp.solve()
-                if s is None: raise
+                if s is None:
+                    raise
                 val = s[varIdx]
                 atom = self.varIdx2GndAtom[varIdx][val]
                 self.forbidGndAtom(atom, wcsp)
                 valIndices.remove(val)
                 cost.append(c)
                 atoms.append(atom)
-        except: pass                    
+        except:
+            pass                    
         c_max = max(cost)
         for i, c in enumerate(cost):
             cost[i] = c_max - c

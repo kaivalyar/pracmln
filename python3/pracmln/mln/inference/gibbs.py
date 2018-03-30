@@ -42,9 +42,11 @@ class GibbsSampler(MCMCInference):
         self.var2gf = defaultdict(set)
         grounder = FastConjunctionGrounding(mrf, simplify=True, unsatfailure=True, cache=None)
         for gf in grounder.itergroundings():
-            if isinstance(gf, Logic.TrueFalse): continue
+            if isinstance(gf, Logic.TrueFalse):
+                continue
             vars_ = set([self.mrf.variable(a).idx for a in gf.gndatoms()])
-            for v in vars_: self.var2gf[v].add(gf)
+            for v in vars_:
+                self.var2gf[v].add(gf)
     
     @property
     def chains(self):
@@ -75,7 +77,8 @@ class GibbsSampler(MCMCInference):
                         sums[i] += gf.weight * truth
                 # set all impossible values to None (i.e. prob 0) since they
                 # might still be have a value of 0 in sums 
-                for i in [j for j in range(len(sums)) if j not in possible_values]: sums[i] = None
+                for i in [j for j in range(len(sums)) if j not in possible_values]:
+                    sums[i] = None
             expsums = numpy.array([numpy.exp(s) if s is not None else 0 for s in sums])
             Z = sum(expsums) 
             probs = expsums / Z

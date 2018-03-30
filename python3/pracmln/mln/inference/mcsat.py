@@ -73,7 +73,8 @@ class MCSAT(MCMCInference):
         grounder = FastConjunctionGrounding(self.mrf, formulas=self.formulas, simplify=True, verbose=self.verbose)
         self.gndformulas = []
         for gf in grounder.itergroundings():
-            if isinstance(gf, Logic.TrueFalse): continue
+            if isinstance(gf, Logic.TrueFalse):
+                continue
             self.gndformulas.append(gf.cnf())
         self._watch.tags.update(grounder.watch.tags)
 #         self.gndformulas, self.formulas = Logic.cnf(grounder.itergroundings(), self.mln.formulas, self.mln.logic, allpos=True)
@@ -90,7 +91,8 @@ class MCSAT(MCMCInference):
                 clauses = [clause for clause in gf.children if not isinstance(clause, Logic.TrueFalse)]
             elif not isinstance(gf, Logic.TrueFalse):
                 clauses = [gf]
-            else: continue
+            else:
+                continue
             self.gf2clauseidx[i_gf] = (i_clause, i_clause + len(clauses))
             # process each clause
             for c in clauses:
@@ -379,7 +381,8 @@ class SampleSAT:
                 if not clause.satisfied_in_world(world):
                     skip = True
                     break
-            if skip: continue
+            if skip:
+                continue
             worlds.append(world)
         state = worlds[random.randint(0, len(worlds)-1)]
         return state
@@ -407,7 +410,8 @@ class SampleSAT:
         for var in clause.variables():
             bottleneck_clauses = [cl for cl in self.var2clauses[var] if cl.bottleneck is not None]
             for _, value in var.itervalues(self.mrf.evidence_dicti()):
-                if not clause.turns_true_with(var, value): continue
+                if not clause.turns_true_with(var, value):
+                    continue
                 unsat = 0
                 for c in bottleneck_clauses:
                     # count the  constraints rendered unsatisfied for this value from the bottleneck atoms
@@ -435,7 +439,8 @@ class SampleSAT:
         for c in self.var2clauses[var]:
             satisfied, _ = c.update(var, val)
             if satisfied:
-                if c.cidx in self.unsatisfied: self.unsatisfied.remove(c.cidx)
+                if c.cidx in self.unsatisfied:
+                    self.unsatisfied.remove(c.cidx)
             else:
                 self.unsatisfied.add(c.cidx)
                
@@ -447,7 +452,8 @@ class SampleSAT:
         var = variables[0]
         ev = var.evidence_value()
         values = var.valuecount(self.mrf.evidence)
-        for _, v in var.itervalues(self.mrf.evidence): break
+        for _, v in var.itervalues(self.mrf.evidence):
+            break
         if values == 1:
             raise Exception('Only one remaining value for variable %s: %s. Please check your evidences.' % (var, v))
         values = [v for _, v in var.itervalues(self.mrf.evidence) if v != ev]
@@ -485,7 +491,8 @@ class SampleSAT:
             self.truelits = set()
             self.atomidx2lits = defaultdict(set)
             for lit in lits:
-                if isinstance(lit, Logic.TrueFalse): continue
+                if isinstance(lit, Logic.TrueFalse):
+                    continue
                 atomidx = lit.gndatom.idx
                 self.atomidx2lits[atomidx].add(0 if lit.negated else 1)
                 if lit(world) == 1:
@@ -496,10 +503,13 @@ class SampleSAT:
         
         def _isbottleneck(self, atomidx):
             atomidx2lits = self.atomidx2lits
-            if len(self.truelits) != 1 or atomidx not in self.truelits: return False
-            if len(atomidx2lits[atomidx]) == 1: return True
+            if len(self.truelits) != 1 or atomidx not in self.truelits:
+                return False
+            if len(atomidx2lits[atomidx]) == 1:
+                return True
             fst = item(atomidx2lits[atomidx])
-            if all([x == fst for x in atomidx2lits[atomidx]]): return False # the atom appears with different polarity in the clause, this is not a bottleneck
+            if all([x == fst for x in atomidx2lits[atomidx]]):
+                return False # the atom appears with different polarity in the clause, this is not a bottleneck
             return True
         
         
@@ -509,7 +519,8 @@ class SampleSAT:
             the given value. Returns False if the clause is already False.
             """
             for a, v in var.atomvalues(val):
-                if a.idx == self.bottleneck and v not in self.atomidx2lits[a.idx]: return True
+                if a.idx == self.bottleneck and v not in self.atomidx2lits[a.idx]:
+                    return True
             return False
         
         
@@ -519,7 +530,8 @@ class SampleSAT:
             its given value.
             """
             for a, v in var.atomvalues(val):
-                if self.unsatisfied and v in self.atomidx2lits[a.idx]: return True
+                if self.unsatisfied and v in self.atomidx2lits[a.idx]:
+                    return True
             return False
             
         
@@ -529,8 +541,10 @@ class SampleSAT:
             """
             for a, v in var.atomvalues(val):
                 if v not in self.atomidx2lits[a.idx]:
-                    if a.idx in self.truelits: self.truelits.remove(a.idx)
-                else: self.truelits.add(a.idx)
+                    if a.idx in self.truelits:
+                        self.truelits.remove(a.idx)
+                else:
+                    self.truelits.add(a.idx)
             if len(self.truelits) == 1 and self._isbottleneck(item(self.truelits)):
                 self.bottleneck = item(self.truelits)
             else:

@@ -69,17 +69,20 @@ class Inference(object):
         # fill in the missing truth values of variables that have only one remaining value
         for variable in self.mrf.variables:
             if variable.valuecount(self.mrf.evidence_dicti()) == 1: # the var is fully determined by the evidence
-                for _, value in variable.itervalues(self.mrf.evidence): break
+                for _, value in variable.itervalues(self.mrf.evidence):
+                    break
                 self.mrf.set_evidence(variable.value2dict(value), erase=False)
         # apply the closed world assumptions to the explicitly specified predicates
         if self.cwpreds:
             for pred in self.cwpreds:
                 if isinstance(self.mln.predicate(pred), SoftFunctionalPredicate):
-                    if self.verbose: logger.warning('Closed world assumption will be applied to soft functional predicate %s' % pred)
+                    if self.verbose:
+                        logger.warning('Closed world assumption will be applied to soft functional predicate %s' % pred)
                 elif isinstance(self.mln.predicate(pred), FunctionalPredicate):
                     raise Exception('Closed world assumption is inapplicable to functional predicate %s' % pred)
                 for gndatom in self.mrf.gndatoms:
-                    if gndatom.predname != pred: continue
+                    if gndatom.predname != pred:
+                        continue
                     if self.mrf.evidence[gndatom.idx] is None:
                         self.mrf.evidence[gndatom.idx] = 0
         # apply the closed world assumption to all remaining ground atoms that are not in the queries
@@ -183,7 +186,8 @@ class Inference(object):
         """
         
         # perform actual inference (polymorphic)
-        if self.verbose: print('Inference engine: %s' % self.__class__.__name__)
+        if self.verbose:
+            print('Inference engine: %s' % self.__class__.__name__)
         self._watch.tag('inference', verbose=self.verbose)
         _weights_backup = list(self.mln.weights)
         self._results = self._run()
@@ -203,7 +207,8 @@ class Inference(object):
             wrote_results = False
             for var in sorted(self.mrf.variables, key=str):
                 res = dict([(atom, prob) for atom, prob in results.items() if atom in list(map(str, var.gndatoms))])
-                if not res: continue
+                if not res:
+                    continue
                 if isinstance(var, MutexVariable) or isinstance(var, SoftMutexVariable):
                     stream.write('%s:\n' % var)
                 if sort == 'prob':
@@ -234,8 +239,10 @@ class Inference(object):
             color = True
         elif color is None:
             color = False
-        if color: col = 'blue'
-        else: col = None
+        if color:
+            col = 'blue'
+        else:
+            col = None
         total = float(self._watch['inference'].elapsedtime)
         stream.write(headline('INFERENCE RUNTIME STATISTICS'))
         print()

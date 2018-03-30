@@ -114,7 +114,8 @@ class MCMCInference(Inference):
         
         
         def soft_evidence_frequency(self, formula):
-            if self.steps == 0: return 0
+            if self.steps == 0:
+                return 0
             return float(self.softev_counts[fstr(formula)]) / self.steps
         
         

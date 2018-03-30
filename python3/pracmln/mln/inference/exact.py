@@ -137,7 +137,8 @@ class EnumerationAsk(Inference):
                     k += 1
                     for i, v in enumerate(num):
                         numerators[i] += v
-                    if self.verbose: bar.inc()
+                    if self.verbose:
+                        bar.inc()
             except Exception as e:
                 logger.error('Error in child process. Terminating pool...')
                 pool.close()

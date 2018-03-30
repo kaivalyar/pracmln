@@ -43,7 +43,8 @@ class IPFPM(Inference):
     def _infer(self, verbose=True, details=False, fittingMethod=EnumerationAsk, fittingThreshold=1e-3, 
                fittingSteps=100, fittingParams=None, maxThreshold=None, greedy=False, **args):
         # add formulas to the model whose weights we can then fit
-        if verbose: logger.info("extending model with %d formulas whose weights will be fit..." % len(self.mrf.getSoftEvidence()))
+        if verbose:
+            logger.info("extending model with %d formulas whose weights will be fit..." % len(self.mrf.getSoftEvidence()))
         for req in self.mrf.getSoftEvidence():            
             formula = self.mln.logic.parseFormula(req["expr"])
             idxFormula = self.mrf._addFormula(formula, 0.0)                        
@@ -54,7 +55,8 @@ class IPFPM(Inference):
             req["idxFormula"] = idxFormula     
 
         # do fitting
-        if fittingParams is None: fittingParams = {}
+        if fittingParams is None:
+            fittingParams = {}
         fittingParams.update(args)
         results, self.data = self.mrf._fitProbabilityConstraints(self.mrf.getSoftEvidence(), fittingMethod=fittingMethod, 
                                                                  fittingThreshold=fittingThreshold, fittingSteps=fittingSteps, 

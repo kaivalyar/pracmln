@@ -58,9 +58,11 @@ class SAMaxWalkSAT(MCMCInference):
                 formulas.append(f_.nnf())
         grounder = FastConjunctionGrounding(mrf, formulas=formulas, simplify=True, unsatfailure=True)
         for gf in grounder.itergroundings():
-            if isinstance(gf, Logic.TrueFalse): continue
+            if isinstance(gf, Logic.TrueFalse):
+                continue
             vars_ = set([self.mrf.variable(a).idx for a in gf.gndatoms()])
-            for v in vars_: self.var2gf[v].add(gf)
+            for v in vars_:
+                self.var2gf[v].add(gf)
             self.sum += (self.hardw if gf.weight == HARD else gf.weight) * (1 - gf(self.state))
         
         
@@ -116,8 +118,10 @@ class SAMaxWalkSAT(MCMCInference):
                 keep = random.uniform(0.0, 1.0) <= prob
 #                 keep = False # !!! no annealing
             # apply new objective value
-            if keep: self.sum += improvement
-            else: self.state = oldstate
+            if keep:
+                self.sum += improvement
+            else:
+                self.state = oldstate
             # next iteration
             i += 1
             if self.verbose:
