@@ -1010,7 +1010,7 @@ cdef class Lit(Formula):
                 raise Exception('Could not ground "%s". This atom is not among the ground atoms.' % atom)
             # simplify if necessary
             truth = gndatom.truth(list(mrf.evidence))
-            if simplify and truth is not None:#if simplify and truth != -1 and truth is not None:
+            if simplify and truth != -1 and truth is not None:#if simplify and truth is not None:
                 if self.negated:
                     truth = 1 - truth
                 return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
@@ -1369,7 +1369,7 @@ cdef class GroundLit(Formula):
 
     def simplify(self, world):
         truth = self.truth(list(world))
-        if truth is not None:#if truth != -1 and truth is not None:
+        if truth != -1 and truth is not None:#if truth is not None:
             return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
         return self.mln.logic.gnd_lit(self.gndatom, self.negated, mln=self.mln, idx=self.idx)
 
