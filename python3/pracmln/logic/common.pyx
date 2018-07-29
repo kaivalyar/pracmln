@@ -579,7 +579,7 @@ cdef class Formula(Constraint):
 
 
     def __call__(self, world):
-        return self.truth(world)
+        return self.truth(list(world))
 
 
     def __repr__(self):
@@ -1009,9 +1009,10 @@ cdef class Lit(Formula):
             if gndatom is None:
                 raise Exception('Could not ground "%s". This atom is not among the ground atoms.' % atom)
             # simplify if necessary
-            if simplify and gndatom.truth(mrf.evidence) is not None:
-                truth = gndatom.truth(mrf.evidence)
-                if self.negated: truth = 1 - truth
+            truth = gndatom.truth(list(mrf.evidence))
+            if simplify and truth is not None:
+                if self.negated:
+                    truth = 1 - truth
                 return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
             gndformula = self.mln.logic.gnd_lit(gndatom, self.negated, mln=self.mln, idx=self.idx)
             return gndformula
@@ -1367,7 +1368,7 @@ cdef class GroundLit(Formula):
 
 
     def simplify(self, world):
-        truth = self.truth(world)
+        truth = self.truth(list(world))
         if truth is not None:
             return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
         return self.mln.logic.gnd_lit(self.gndatom, self.negated, mln=self.mln, idx=self.idx)
@@ -1632,7 +1633,7 @@ cdef class Equality(ComplexFormula):
 
 
     def simplify(self, world):
-        truth = self.truth(world)
+        truth = self.truth(list(world))
         if truth != None: return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
         return self.mln.logic.equality(list(self.args), negated=self.negated, mln=self.mln, idx=self.idx)
 
@@ -1786,7 +1787,7 @@ cdef class Negation(ComplexFormula):
 
 
     def truth(self, world):
-        childValue = self.children[0].truth(world)
+        childValue = self.children[0].truth(list(world))
         if childValue is None:
             return None
         return 1 - childValue

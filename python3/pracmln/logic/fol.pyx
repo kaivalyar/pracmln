@@ -112,7 +112,7 @@ cdef class Disjunction(Super_Disjunction):
     def truth(self, world):
         cdef bint dontKnow = False
         for child in self.children:
-            childValue = child.truth(world)
+            childValue = child.truth(list(world))
             if childValue == 1:
                 return 1
             if childValue is None:
@@ -127,7 +127,7 @@ cdef class Disjunction(Super_Disjunction):
         sf_children = []
         for child in self.children:
             child = child.simplify(world)
-            t = child.truth(world)
+            t = child.truth(list(world))
             if t == 1:
                 return self.mln.logic.true_false(1, mln=self.mln, idx=self.idx)
             elif t == 0: continue
@@ -156,7 +156,7 @@ cdef class Conjunction(Super_Conjunction):
     def truth(self, world):
         cdef bint dontKnow = False
         for child in self.children:
-            childValue = child.truth(world)
+            childValue = child.truth(list(world))
             if childValue == 0:
                 return 0.
             if childValue is None:
@@ -171,7 +171,7 @@ cdef class Conjunction(Super_Conjunction):
         sf_children = []
         for child in self.children:
             child = child.simplify(world)
-            t = child.truth(world)
+            t = child.truth(list(world))
             if t == 0:
                 return self.mln.logic.true_false(0, mln=self.mln, idx=self.idx)
             elif t == 1: pass
@@ -197,8 +197,8 @@ cdef class Conjunction(Super_Conjunction):
 #class Implication(Super_Implication, ComplexFormula):
 cdef class Implication(Super_Implication):
     def truth(self, world):
-        ant = self.children[0].truth(world)
-        cons = self.children[1].truth(world)
+        ant = self.children[0].truth(list(world))
+        cons = self.children[1].truth(list(world))
         if ant == 0 or cons == 1:
             return 1
         if ant is None or cons is None:
@@ -208,8 +208,8 @@ cdef class Implication(Super_Implication):
 #class Biimplication(Super_Biimplication, ComplexFormula):
 cdef class Biimplication(Super_Biimplication):
     def truth(self, world):
-        c1 = self.children[0].truth(world)
-        c2 = self.children[1].truth(world)
+        c1 = self.children[0].truth(list(world))
+        c2 = self.children[1].truth(list(world))
         if c1 is None or c2 is None:
             return None
         return 1 if (c1 == c2) else 0

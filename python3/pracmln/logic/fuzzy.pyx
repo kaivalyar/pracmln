@@ -68,7 +68,7 @@ cdef class GroundAtom(Super_GroundAtom):
 
 cdef class Negation(Super_Negation):
     cpdef truth(self, list world):
-        val = self.children[0].truth(world)
+        val = self.children[0].truth(list(world))
         return None if val is None else 1. - val
 
     def simplify(self, world):
@@ -80,7 +80,7 @@ cdef class Negation(Super_Negation):
 
 cdef class Conjunction(Super_Conjunction):
     def truth(self, world):
-        truthChildren = [a.truth(world) for a in self.children]
+        truthChildren = [a.truth(list(world)) for a in self.children]
         return FuzzyLogic.min_undef(*truthChildren)
 
     def simplify(self, world):
@@ -107,7 +107,7 @@ cdef class Conjunction(Super_Conjunction):
 
 cdef class Disjunction(Super_Disjunction):
     def truth(self, world):
-        return FuzzyLogic.max_undef(*[a.truth(world) for a in self.children])
+        return FuzzyLogic.max_undef(*[a.truth(list(world)) for a in self.children])
 
     def simplify(self, world):
         sf_children = []
@@ -133,8 +133,8 @@ cdef class Disjunction(Super_Disjunction):
 
 cdef class Implication(Super_Implication):
     def truth(self, world):
-        ant = self.children[0].truth(world)
-        return FuzzyLogic.max_undef(None if ant is None else 1. - ant, self.children[1].truth(world))
+        ant = self.children[0].truth(list(world))
+        return FuzzyLogic.max_undef(None if ant is None else 1. - ant, self.children[1].truth(list(world)))
 
     def simplify(self, world):
         return self.mln.logic.disjunction([self.mln.logic.negation([self.children[0]], mln=self.mln, idx=self.idx),
@@ -142,7 +142,7 @@ cdef class Implication(Super_Implication):
 
 cdef class Biimplication(Super_Biimplication):
     def truth(self, world):
-        return FuzzyLogic.min_undef(self.children[0].truth(world), self.children[1].truth(world))
+        return FuzzyLogic.min_undef(self.children[0].truth(list(world)), self.children[1].truth(list(world)))
 
     def simplify(self, world):
         c1 = self.mln.logic.disjunction([self.mln.logic.negation([self.children[0]], mln=self.mln, idx=self.idx), self.children[1]], mln=self.mln, idx=self.idx)
@@ -157,7 +157,7 @@ cdef class Equality(Super_Equality):
         return (1. - equals) if self.negated else equals
 
     def simplify(self, world):
-        truth = self.truth(world)
+        truth = self.truth(list(world))
         if truth != None: return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
         return self.mln.logic.equality(list(self.args), negated=self.negated, mln=self.mln, idx=self.idx)
 
