@@ -180,7 +180,7 @@ cdef class EnumerationAsk(Inference):
 
     def soft_evidence_formula(self, gf):
         #print('result={}'.format(gf.gndatoms()))
-        truths = [a.truth(self.mrf.evidence) for a in gf.gndatoms()]
+        truths = [a.truth(list(self.mrf.evidence)) for a in gf.gndatoms()]
         if None in truths:
             return False
         return isinstance(self.mrf.mln.logic, FirstOrderLogic) and any([t in Interval('(0,1)') for t in truths])
