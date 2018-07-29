@@ -74,7 +74,10 @@ cdef class Constraint():
         """
         raise Exception("%s does not implement getTemplateVariants" % str(type(self)))
 
-    def truth(self, world):
+    cdef _truth(self, list world):
+        raise Exception("%s does not implement truth" % str(type(self)))
+
+    cpdef truth(self, list world):
         """
         Returns the truth value of the constraint in given a complete possible world
 
@@ -537,8 +540,10 @@ cdef class Formula(Constraint):
         for t in self._ground_template({}):
             yield t
 
+    cdef _truth(self, list world):
+        raise Exception("%s does not implement truth" % str(type(self)))
 
-    def truth(self, world):
+    cpdef  truth(self, list world):
         """
         Evaluates the formula for its truth wrt. the truth values
         of ground atoms in the possible world `world`.
@@ -1037,8 +1042,10 @@ cdef class Lit(Formula):
     def copy(self, mln=None, idx=inherit):
         return self.mln.logic.lit(self.negated, self.predname, self.args, mln=ifnone(mln, self.mln), idx=self.idx if idx is inherit else idx)
 
+    cdef _truth(self, list world):
+        return None
 
-    def truth(self, world):
+    cpdef truth(self, list world):
         return None
         #             raise Exception('Literals do not have a truth value. Ground the literal first.')
 
@@ -1198,7 +1205,10 @@ cdef class LitGroup(Formula):
         return self.mln.logic.litgroup(self.negated, self.predname, self.args, mln=ifnone(mln, self.mln), idx=self.idx if idx is inherit else idx)
 
 
-    def truth(self, world):
+    cdef _truth(self, list world):
+        return None
+
+    cpdef  truth(self, list world):
         return None
 
 
@@ -1280,6 +1290,14 @@ cdef class GroundLit(Formula):
     def args(self):
         return self.gndatom.args
 
+
+    cdef float _truth(self, list world):
+        tv = self.gndatom.truth(world)
+        if tv is None:
+            return None
+        if self.negated:
+            return (1. - tv)
+        return tv
 
     #cdef float truth(self, list world):
     cpdef truth(self, list world):
@@ -1443,6 +1461,9 @@ cdef class GroundAtom():
       self._idx = idx
 
 
+    cdef _truth(self, list world):
+        return world[self.idx]
+
     cpdef truth(self, list world):
         return world[self.idx]
 
@@ -1605,6 +1626,12 @@ cdef class Equality(ComplexFormula):
             prednames = []
         return prednames
 
+    cdef _truth(self, world=None):
+        if any(map(self.mln.logic.isvar, self.args)):
+            return None
+        cdef int equals
+        equals = 1 if (self._argsA == self._argsB) else 0
+        return (1 - equals) if self.negated else equals
 
     cpdef truth(self, world=None):
         #print('\nargs type={} , args={}'.format(type(self.args), self.args))
@@ -1784,8 +1811,13 @@ cdef class Negation(ComplexFormula):
     def latex(self):
         return r'\lnot (%s)' % self.children[0].latex()
 
+    cdef _truth(self, list world):
+        childValue = self.children[0].truth(world)
+        if childValue is None:
+            return None
+        return 1 - childValue
 
-    def truth(self, world):
+    cpdef  truth(self, list world):
         childValue = self.children[0].truth(world)
         if childValue is None:
             return None
@@ -1975,8 +2007,10 @@ cdef class Exist(ComplexFormula):
     def cnf(self,l=0):
         raise Exception("'%s' cannot be converted to CNF. Ground this formula first!" % str(self))
 
+    cdef _truth(self, list world):
+        raise Exception("'%s' does not implement truth()" % self.__class__.__name__)
 
-    def truth(self, w):
+    cpdef truth(self, w):
         raise Exception("'%s' does not implement truth()" % self.__class__.__name__)
 
 cdef class TrueFalse(Formula):
@@ -2002,6 +2036,9 @@ cdef class TrueFalse(Formula):
 
     def cstr(self, color=False):
         return str(self)
+
+    cpdef float _truth(self, world=None):
+        return self.value
 
     cpdef float truth(self, world=None):
         #print('getting value type {} = {}'.format(type(self.value), self.value))
