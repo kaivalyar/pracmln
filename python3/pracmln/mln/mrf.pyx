@@ -45,8 +45,9 @@ from ..logic.fuzzy import FuzzyLogic
 
 from util cimport CallByRef
 from mrfvars cimport MRFVariable
-#from cpython cimport array
-#import array
+
+from cpython cimport array
+import array
 
 
 logger = logs.getlogger(__name__)
@@ -70,7 +71,7 @@ cdef class MRF(object):
             self.mln = mln.materialize(db)
         else:
             self.mln = mln
-        self._evidence = []#array.array('d', [])#[]
+        self._evidence = array.array('d', [])#[]
 #         self.evidenceBackup = {}
         self._variables = {}
         self._variables_by_idx = {} # gnd atom idx -> variable
@@ -115,7 +116,8 @@ cdef class MRF(object):
 
     @evidence.setter
     def evidence(self, evidence):
-        self._evidence = evidence
+        self._evidence = array.array('d', evidence)
+        #self._evidence = evidence
         self.consistent()
 
     @property
@@ -247,8 +249,7 @@ cdef class MRF(object):
                 var = self.variable(self.gndatom(key))
                 # unset all atoms in this variable
                 for atom in var.gndatoms:
-                    self._evidence[atom.idx] = None
-
+                    self._evidence[atom.idx] = 0#None
         for key, value in atomvalues.items():
             gndatom = self.gndatom(key)
             var = self.variable(gndatom)
@@ -256,9 +257,11 @@ cdef class MRF(object):
             # ground atoms in this variable
             values = [-1] * len(var.gndatoms)
             if isinstance(var, FuzzyVariable):
+                #print('{} of type {}'.format(value, type(value)))
                 self._evidence[gndatom.idx] = value
                 continue
             elif isinstance(var, BinaryVariable):
+                #print('{} of type {}'.format(value, type(value)))
                 self._evidence[gndatom.idx] = value
                 continue
             for _, val in var.itervalues(evidence={gndatom.idx: value}):
@@ -278,8 +281,7 @@ cdef class MRF(object):
         '''
         Erases all evidence in the MRF.
         '''
-        self._evidence = [None] * len(self.gndatoms)
-
+        self._evidence = array('d', [None] * len(self.gndatoms) )#[None] * len(self.gndatoms)
     def apply_cw(self, *prednames):
         '''
         Applies the closed world assumption to this MRF.
@@ -290,6 +292,7 @@ cdef class MRF(object):
                               If empty, it is applied to all predicates.
         '''
         for i, v in enumerate(self._evidence):
+            #print('v: {} of type {}'.format(v, type(v)))
             if prednames and self.gndatom(i).predname not in prednames:
                 continue
             if v is None: self._evidence[i] = 0
@@ -370,7 +373,7 @@ cdef class MRF(object):
         gndatom = self.mln.logic.gnd_atom(predname, args, self.mln)
         if str(gndatom) in self._gndatoms:
             return self._gndatoms[str(gndatom)]
-        self._evidence.append(None)
+        self._evidence.append(0)#(None)
         gndatom.idx = len(self._gndatoms)
         self._gndatoms[str(gndatom)] = gndatom
         self._gndatoms_by_idx[gndatom.idx] = gndatom
