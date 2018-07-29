@@ -249,7 +249,7 @@ cdef class MRF(object):
                 var = self.variable(self.gndatom(key))
                 # unset all atoms in this variable
                 for atom in var.gndatoms:
-                    self._evidence[atom.idx] = 0#None
+                    self._evidence[atom.idx] = -1.0#None
         for key, value in atomvalues.items():
             gndatom = self.gndatom(key)
             var = self.variable(gndatom)
@@ -281,7 +281,7 @@ cdef class MRF(object):
         '''
         Erases all evidence in the MRF.
         '''
-        self._evidence = array('d', [None] * len(self.gndatoms) )#[None] * len(self.gndatoms)
+        self._evidence = array('d', [-1] * len(self.gndatoms) )#[None] * len(self.gndatoms)
     def apply_cw(self, *prednames):
         '''
         Applies the closed world assumption to this MRF.
@@ -373,7 +373,7 @@ cdef class MRF(object):
         gndatom = self.mln.logic.gnd_atom(predname, args, self.mln)
         if str(gndatom) in self._gndatoms:
             return self._gndatoms[str(gndatom)]
-        self._evidence.append(0)#(None)
+        self._evidence.append(-1.0)#(None)
         gndatom.idx = len(self._gndatoms)
         self._gndatoms[str(gndatom)] = gndatom
         self._gndatoms_by_idx[gndatom.idx] = gndatom
