@@ -235,7 +235,7 @@ cdef class MRF(object):
                 atomvalues[key] = {True: 1, False: 0}[value]
                 value = atomvalues[key]
             gndatom = self.gndatom(key)
-            if gndatom is None:
+            if gndatom is None: # Q(gsoc): -1?
                 self.print_gndatoms()
                 raise MRFValueException('"%s" is not among the ground atoms.' % key)
             atomvalues_[str(gndatom)] = value
@@ -256,6 +256,8 @@ cdef class MRF(object):
             # create a template with admissible truth values for all
             # ground atoms in this variable
             values = [-1] * len(var.gndatoms)
+            if value == None:
+                value = -1 # Q(gsoc): -1?
             if isinstance(var, FuzzyVariable):
                 #print('{} of type {}'.format(value, type(value)))
                 self._evidence[gndatom.idx] = value
@@ -266,14 +268,16 @@ cdef class MRF(object):
                 continue
             for _, val in var.itervalues(evidence={gndatom.idx: value}):
                 for i, (v, v_) in enumerate(zip(values, val)):
-                    if v == -1: values[i] = v_
+                    if v == -1: values[i] = v_# Q(gsoc): -1?
                     elif v is not None and v != v_:
                         values[i] = None
             for atom, val in zip(var.gndatoms, values):
+                if val == None:
+                    val = -1 # Q(gsoc): -1?
                 curval = self._evidence[atom.idx]
-                if curval is not None and val is not None and curval != val:
+                if (curval != -1 and curval is not None) and (val != -1 and val is not None) and curval != val:# Q(gsoc): -1?
                     raise MRFValueException('Contradictory evidence in variable %s: %s = %s vs. %s' % (var.name, str(gndatom), curval, val))
-                elif curval is None and val is not None:
+                elif (curval == -1 or curval is None) and (val != -1 and val is not None):# Q(gsoc): -1?
                     self._evidence[atom.idx] = val
         if cw: self.apply_cw()
 
@@ -281,7 +285,7 @@ cdef class MRF(object):
         '''
         Erases all evidence in the MRF.
         '''
-        self._evidence = array('d', [-1] * len(self.gndatoms) )#[None] * len(self.gndatoms)
+        self._evidence = array('d', [-1.0] * len(self.gndatoms) )#[None] * len(self.gndatoms)
     def apply_cw(self, *prednames):
         '''
         Applies the closed world assumption to this MRF.
@@ -295,7 +299,7 @@ cdef class MRF(object):
             #print('v: {} of type {}'.format(v, type(v)))
             if prednames and self.gndatom(i).predname not in prednames:
                 continue
-            if v is None: self._evidence[i] = 0
+            if (v == -1 or v is None): self._evidence[i] = 0# Q(gsoc): -1?
 
     def consistent(self, strict=False):
         '''
@@ -399,7 +403,7 @@ cdef class MRF(object):
         Prints the given world `world` as a readable string of the plain gnd atoms to the given stream.
         '''
         for gndatom in self.gndatoms:
-            v = world[gndatom.idx]
+            v = world[gndatom.idx]# Q(gsoc): -1?
             vstr = '%.3f' % v if v is not None else '?    '
             stream.write('%s  %s\n' % (vstr, str(gndatom)))
 
@@ -411,7 +415,7 @@ cdef class MRF(object):
         for var in self.variables:
             stream.write(repr(var) + '\n')
             for i, v in enumerate(var.evidence_value(world)):
-                vstr = '%.3f' % v if v is not None else '?    '
+                vstr = '%.3f' % v if v is not None else '?    '# Q(gsoc): -1?
                 stream.write('  %s  %s\n' % (vstr, var.gndatoms[i]))
 
     def print_domains(self):
@@ -503,7 +507,7 @@ cdef class MRF(object):
 
         :returns:    a generator of possible worlds.
         '''
-        world = [None] * len(self.evidence)
+        world = [None] * len(self.evidence)# Q(gsoc): could this be typed as a cpython array?
         for i, w in self._iterworlds(self.variables, world, CallByRef(0), {}):
             yield i, w
 
@@ -547,7 +551,7 @@ cdef class MRF(object):
             soft evidence has precedence over hard evidence
         '''
         se = self._getSoftEvidence(gndAtom)
-        if se is not None:
+        if (se != -1 and se is not None):# Q(gsoc): -1?
             return se if (True == worldValues[gndAtom.idx] or None == worldValues[gndAtom.idx]) else 1.0 - se # TODO allSoft currently unsupported
         return 1.0 if worldValues[gndAtom.idx] else 0.0
 
