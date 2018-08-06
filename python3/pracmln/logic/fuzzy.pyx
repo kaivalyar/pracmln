@@ -63,11 +63,11 @@ cdef class GroundLit(Super_GroundLit):
     pass
 
 cdef class GroundAtom(Super_GroundAtom):
-    cpdef truth(self, list world):
+    cpdef truth(self, world):
         return world[self.idx]
 
 cdef class Negation(Super_Negation):
-    cpdef truth(self, list world):
+    cpdef truth(self, world):
         val = self.children[0].truth(world)
         return None if val is None else 1. - val
 

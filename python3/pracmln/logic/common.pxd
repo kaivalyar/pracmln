@@ -31,16 +31,16 @@ cdef class LitGroup(Formula):
 cdef class GroundLit(Formula):
     cdef GroundAtom _gndatom
     cdef int _negated
-    cpdef truth(self, list world)
+    cpdef truth(self, world)
     cpdef mintruth(self, list world)
     cpdef maxtruth(self, list world)
-        
+
 cdef class GroundAtom():
     cdef str _predname
     cdef MLN mln
     #cdef int _idx
     cdef dict __dict__
-    cpdef truth(self, list world)
+    cpdef truth(self, world)
     cpdef mintruth(self, list world)
     cpdef maxtruth(self, list world)
 
@@ -83,4 +83,3 @@ cdef class Logic:
     cdef dict __dict__
     #cdef class Constraint():
     #    pass
-

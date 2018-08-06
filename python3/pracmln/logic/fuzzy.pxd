@@ -39,10 +39,10 @@ cdef class GroundLit(Super_GroundLit):
     pass
 
 cdef class GroundAtom(Super_GroundAtom):
-    cpdef truth(self, list world)
+    cpdef truth(self, world)
 
 cdef class Negation(Super_Negation):
-    cpdef truth(self, list world)
+    cpdef truth(self, world)
 
 cdef class Conjunction(Super_Conjunction):
     pass

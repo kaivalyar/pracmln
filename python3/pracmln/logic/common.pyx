@@ -1282,7 +1282,7 @@ cdef class GroundLit(Formula):
 
 
     #cdef float truth(self, list world):
-    cpdef truth(self, list world):
+    cpdef truth(self, world):
         #print('\nworld is of type {} and world has length {}'.format(type(world), len(world)))
         #for wi in world:
         #    print('\twi is of type {} and is {}'.format(type(wi), wi))
@@ -1443,7 +1443,7 @@ cdef class GroundAtom():
       self._idx = idx
 
 
-    cpdef truth(self, list world):
+    cpdef truth(self, world):
         return world[self.idx]
 
 
