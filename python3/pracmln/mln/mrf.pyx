@@ -45,8 +45,8 @@ from ..logic.fuzzy import FuzzyLogic
 
 from util cimport CallByRef
 from mrfvars cimport MRFVariable
-#from cpython cimport array
-#import array
+from cpython cimport array
+import array
 
 
 logger = logs.getlogger(__name__)
@@ -70,7 +70,7 @@ cdef class MRF(object):
             self.mln = mln.materialize(db)
         else:
             self.mln = mln
-        self._evidence = []#array.array('d', [])#[]
+        self._evidence = array.array('d', [])#[]
 #         self.evidenceBackup = {}
         self._variables = {}
         self._variables_by_idx = {} # gnd atom idx -> variable
@@ -113,9 +113,10 @@ cdef class MRF(object):
     def evidence(self):
         return self._evidence
 
+    # Q(gsoc): cpdef property?
     @evidence.setter
     def evidence(self, evidence):
-        self._evidence = evidence
+        self._evidence = array.array('d', evidence)
         self.consistent()
 
     @property
@@ -247,7 +248,7 @@ cdef class MRF(object):
                 var = self.variable(self.gndatom(key))
                 # unset all atoms in this variable
                 for atom in var.gndatoms:
-                    self._evidence[atom.idx] = None
+                    self._evidence[atom.idx] = -1#None # Q(gsoc): truth-evidence edit
 
         for key, value in atomvalues.items():
             gndatom = self.gndatom(key)
@@ -278,7 +279,7 @@ cdef class MRF(object):
         '''
         Erases all evidence in the MRF.
         '''
-        self._evidence = [None] * len(self.gndatoms)
+        self._evidence = array('d', [None] * len(self.gndatoms))# [None] * len(self.gndatoms) # Q(gsoc): truth-evidence edit
 
     def apply_cw(self, *prednames):
         '''
@@ -370,7 +371,7 @@ cdef class MRF(object):
         gndatom = self.mln.logic.gnd_atom(predname, args, self.mln)
         if str(gndatom) in self._gndatoms:
             return self._gndatoms[str(gndatom)]
-        self._evidence.append(None)
+        self._evidence.append(-1)# Q(gsoc): truth-evidence edit
         gndatom.idx = len(self._gndatoms)
         self._gndatoms[str(gndatom)] = gndatom
         self._gndatoms_by_idx[gndatom.idx] = gndatom

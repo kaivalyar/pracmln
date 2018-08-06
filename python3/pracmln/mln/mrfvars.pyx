@@ -25,6 +25,8 @@ from dnutils import ifnone
 from .errors import MRFValueException
 from .util import Interval
 
+import array
+
 cdef class MRFVariable():
     """
     Represents a (mutually exclusive) block of ground atoms.
@@ -190,7 +192,7 @@ cdef class MRFVariable():
                      actual index obtained by `MRFVariable.valueidx()`.
 
         """
-        if type(evidence) is list:
+        if type(evidence) is list or type(evidence) is array.array:
             evidence = dict([(i, v) for i, v in enumerate(evidence)])
         for tup in self._itervalues(evidence):
             yield self.valueidx(tup), tup
