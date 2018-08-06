@@ -140,7 +140,10 @@ cdef class MRFVariable():
         if evidence is None: evidence = self.mrf.evidence
         value = []
         for gndatom in self.gndatoms:
-            value.append(evidence[gndatom.idx])
+            val = evidence[gndatom.idx]
+            if val == -1:
+                val = None # error prone ...
+            value.append(val)
 #         if all(map(lambda v: v is None, value)):
 #             return None
 #         if not all(map(lambda v: v is not None, value)) and not all(map(lambda v: v is None, value)):
@@ -248,7 +251,7 @@ cdef class MRFVariable():
                 raise MRFValueException('Not all values have truth assignments: %s: %s' % (repr(self), evstr))
             total += ifnone(val, 0)
         if not (total == 1 if strict else total in Interval('[0,1]')):
-            raise MRFValueException('T=%s Invalid value of variable %s: %s' % (total, repr(self), evstr))
+            raise MRFValueException('Invalid value of variable %s: %s' % (repr(self), evstr))
         return True
 
 

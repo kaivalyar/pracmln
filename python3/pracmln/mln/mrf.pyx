@@ -112,6 +112,8 @@ cdef class MRF(object):
     @property
     def evidence(self):
         return self._evidence
+        #result = list( [x if x != -1 else None for x in self._evidence] ) # causes some other error...
+        return result
 
     # Q(gsoc): cpdef property?
     @evidence.setter
@@ -201,6 +203,10 @@ cdef class MRF(object):
                 max_weight = max(abs(f.weight), max_weight)
 
     def __getitem__(self, key):
+        #result = self.evidence[self.gndatom(key).idx]
+        #if result == -1:
+        #    return None
+        #return result
         return self.evidence[self.gndatom(key).idx]
 
     def __setitem__(self, key, value):
@@ -212,6 +218,7 @@ cdef class MRF(object):
     def posterior(self, f, p):
         self._probreqs.append(FirstOrderLogic.PosteriorConstraint(formula=f, p=p))
 
+    ######################### :??
     def set_evidence(self, atomvalues, erase=False, cw=False):
         '''
         Sets the evidence of variables in this MRF.
@@ -234,7 +241,7 @@ cdef class MRF(object):
                 atomvalues[key] = {True: 1, False: 0}[value]
                 value = atomvalues[key]
             gndatom = self.gndatom(key)
-            if gndatom is None:
+            if gndatom is None:# (gndatom == -1 or gndatom is None):
                 self.print_gndatoms()
                 raise MRFValueException('"%s" is not among the ground atoms.' % key)
             atomvalues_[str(gndatom)] = value
@@ -271,7 +278,7 @@ cdef class MRF(object):
                 curval = self._evidence[atom.idx]
                 if (curval != -1 and curval is not None) and (val != -1 and val is not None) and curval != val:
                     raise MRFValueException('Contradictory evidence in variable %s: %s = %s vs. %s' % (var.name, str(gndatom), curval, val))
-                elif (curval == 1 or curval is None) and (val != -1 and val is not None):
+                elif (curval == -1 or curval is None) and (val != -1 and val is not None):
                     self._evidence[atom.idx] = val
         if cw: self.apply_cw()
 
@@ -293,7 +300,7 @@ cdef class MRF(object):
         for i, v in enumerate(self._evidence):
             if prednames and self.gndatom(i).predname not in prednames:
                 continue
-            if v is None: self._evidence[i] = 0
+            if (v == -1 or v is None): self._evidence[i] = 0 # no effect ?!
 
     def consistent(self, strict=False):
         '''
@@ -423,6 +430,8 @@ cdef class MRF(object):
         '''
         d = {}
         for idx, tv in enumerate(self._evidence):
+            #if tv == -1:
+            #    tv is None # no effect!
             d[str(self._gndatoms_by_idx[idx])] = tv
         return d
 
@@ -432,6 +441,8 @@ cdef class MRF(object):
         '''
         d = {}
         for idx, tv in enumerate(self._evidence):
+            #if tv == -1:
+            #    tv is None # no effect!
             d[idx] = tv
         return d
 

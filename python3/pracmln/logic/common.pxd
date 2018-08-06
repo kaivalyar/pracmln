@@ -32,8 +32,8 @@ cdef class GroundLit(Formula):
     cdef GroundAtom _gndatom
     cdef int _negated
     cpdef truth(self, world)
-    cpdef mintruth(self, list world)
-    cpdef maxtruth(self, list world)
+    cpdef mintruth(self, world)
+    cpdef maxtruth(self, world)
 
 cdef class GroundAtom():
     cdef str _predname
@@ -41,8 +41,8 @@ cdef class GroundAtom():
     #cdef int _idx
     cdef dict __dict__
     cpdef truth(self, world)
-    cpdef mintruth(self, list world)
-    cpdef maxtruth(self, list world)
+    cpdef mintruth(self, world)
+    cpdef maxtruth(self, world)
 
 cdef class Equality(ComplexFormula):
     cdef int _negated

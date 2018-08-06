@@ -62,7 +62,7 @@ def eval_queries(world):
         else:
             #print('called by = {}'.format(type(gf)))
             x = gf(world)
-            print(x)
+            #print(x)
             truth = x
             #print('truth of type = {} | truth = {}'.format(type(truth), truth))
             if gf.weight == HARD:
