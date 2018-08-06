@@ -242,11 +242,13 @@ cdef class MRFVariable():
         evstr = ','.join([ifnone(world[atom.idx], '?', str) for atom in self.gndatoms])
         for gnatom in self.gndatoms:
             val = world[gnatom.idx]
+            if val == -1:
+                val = None
             if strict and val is None:
                 raise MRFValueException('Not all values have truth assignments: %s: %s' % (repr(self), evstr))
             total += ifnone(val, 0)
         if not (total == 1 if strict else total in Interval('[0,1]')):
-            raise MRFValueException('Invalid value of variable %s: %s' % (repr(self), evstr))
+            raise MRFValueException('T=%s Invalid value of variable %s: %s' % (total, repr(self), evstr))
         return True
 
 

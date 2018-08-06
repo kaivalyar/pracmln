@@ -1009,8 +1009,8 @@ cdef class Lit(Formula):
             if gndatom is None:
                 raise Exception('Could not ground "%s". This atom is not among the ground atoms.' % atom)
             # simplify if necessary
-            if simplify and gndatom.truth(mrf.evidence) is not None:
-                truth = gndatom.truth(mrf.evidence)
+            truth = gndatom.truth(mrf.evidence)
+            if simplify and truth != -1 and truth is not None:
                 if self.negated: truth = 1 - truth
                 return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
             gndformula = self.mln.logic.gnd_lit(gndatom, self.negated, mln=self.mln, idx=self.idx)
@@ -1283,13 +1283,14 @@ cdef class GroundLit(Formula):
 
     #cdef float truth(self, list world):
     cpdef truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         #print('\nworld is of type {} and world has length {}'.format(type(world), len(world)))
         #for wi in world:
         #    print('\twi is of type {} and is {}'.format(type(wi), wi))
         #cdef float tv = self.gndatom.truth(world)
         tv = self.gndatom.truth(world)
-        #print('tv is of type {} and tv is {}'.format(type(tv), tv))
-        if tv is None:
+        #print('tv is of type {} and tv is {}, self.gndatom={}'.format(type(tv), tv, type(self.gndatom)))
+        if tv == -1 or tv is None:
             return None
         if self.negated:
             return (1. - tv)
@@ -1368,7 +1369,7 @@ cdef class GroundLit(Formula):
 
     def simplify(self, world):
         truth = self.truth(world)
-        if truth is not None:
+        if truth != -1 and truth is not None:
             return self.mln.logic.true_false(truth, mln=self.mln, idx=self.idx)
         return self.mln.logic.gnd_lit(self.gndatom, self.negated, mln=self.mln, idx=self.idx)
 
@@ -1444,6 +1445,7 @@ cdef class GroundAtom():
 
 
     cpdef truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         return world[self.idx]
 
 
@@ -1607,6 +1609,7 @@ cdef class Equality(ComplexFormula):
 
 
     cpdef truth(self, world=None):
+        #world = list( [x if x != -1 else None for x in world] )
         #print('\nargs type={} , args={}'.format(type(self.args), self.args))
         #print('negated type={} , negated={}'.format(type(self.negated), self.negated))
         if any(map(self.mln.logic.isvar, self.args)):
@@ -1786,6 +1789,7 @@ cdef class Negation(ComplexFormula):
 
 
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         childValue = self.children[0].truth(world)
         if childValue is None:
             return None

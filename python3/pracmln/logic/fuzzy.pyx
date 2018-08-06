@@ -64,10 +64,13 @@ cdef class GroundLit(Super_GroundLit):
 
 cdef class GroundAtom(Super_GroundAtom):
     cpdef truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
+        #print('self={} truth={}'.format(self, world[self.idx]))
         return world[self.idx]
 
 cdef class Negation(Super_Negation):
     cpdef truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         val = self.children[0].truth(world)
         return None if val is None else 1. - val
 
@@ -80,6 +83,9 @@ cdef class Negation(Super_Negation):
 
 cdef class Conjunction(Super_Conjunction):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
+        #print([a for a in self.children])
+        #print([a.truth(world) for a in self.children])
         truthChildren = [a.truth(world) for a in self.children]
         return FuzzyLogic.min_undef(*truthChildren)
 
@@ -107,6 +113,7 @@ cdef class Conjunction(Super_Conjunction):
 
 cdef class Disjunction(Super_Disjunction):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         return FuzzyLogic.max_undef(*[a.truth(world) for a in self.children])
 
     def simplify(self, world):
@@ -133,6 +140,7 @@ cdef class Disjunction(Super_Disjunction):
 
 cdef class Implication(Super_Implication):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         ant = self.children[0].truth(world)
         return FuzzyLogic.max_undef(None if ant is None else 1. - ant, self.children[1].truth(world))
 
@@ -142,6 +150,7 @@ cdef class Implication(Super_Implication):
 
 cdef class Biimplication(Super_Biimplication):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         return FuzzyLogic.min_undef(self.children[0].truth(world), self.children[1].truth(world))
 
     def simplify(self, world):
@@ -151,6 +160,9 @@ cdef class Biimplication(Super_Biimplication):
 
 cdef class Equality(Super_Equality):
     def truth(self, world=None):
+        if world is not None:
+            pass
+            #world = list( [x if x != -1 else None for x in world] )
         if any(map(self.mln.logic.isvar, self.args)):
             return None
         equals = 1. if (self.args[0] == self.args[1]) else 0.
@@ -225,6 +237,9 @@ cdef class FuzzyLogic(Logic):
         return reduce(lambda x, y: None if x is None or y is None else max(x, y), args)
 
     def conjunction(self, *args, **kwargs):
+        #result = Conjunction(*args, **kwargs)
+        #print('result={}'.format(type(result)))
+        #return result
         return Conjunction(*args, **kwargs)
 
 

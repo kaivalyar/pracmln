@@ -110,6 +110,7 @@ cdef class GroundLit(Super_GroundLit):
 #class Disjunction(Super_Disjunction, ComplexFormula):
 cdef class Disjunction(Super_Disjunction):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         cdef bint dontKnow = False
         for child in self.children:
             childValue = child.truth(world)
@@ -154,6 +155,7 @@ cdef class Disjunction(Super_Disjunction):
 #class Conjunction(Super_Conjunction, ComplexFormula):
 cdef class Conjunction(Super_Conjunction):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         cdef bint dontKnow = False
         for child in self.children:
             childValue = child.truth(world)
@@ -197,6 +199,7 @@ cdef class Conjunction(Super_Conjunction):
 #class Implication(Super_Implication, ComplexFormula):
 cdef class Implication(Super_Implication):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         ant = self.children[0].truth(world)
         cons = self.children[1].truth(world)
         if ant == 0 or cons == 1:
@@ -208,6 +211,7 @@ cdef class Implication(Super_Implication):
 #class Biimplication(Super_Biimplication, ComplexFormula):
 cdef class Biimplication(Super_Biimplication):
     def truth(self, world):
+        #world = list( [x if x != -1 else None for x in world] )
         c1 = self.children[0].truth(world)
         c2 = self.children[1].truth(world)
         if c1 is None or c2 is None:

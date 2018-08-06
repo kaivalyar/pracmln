@@ -60,7 +60,11 @@ def eval_queries(world):
         if global_enumAsk.soft_evidence_formula(gf):
             expsum += gf.noisyor(world) * gf.weight
         else:
-            truth = gf(world)
+            #print('called by = {}'.format(type(gf)))
+            x = gf(world)
+            print(x)
+            truth = x
+            #print('truth of type = {} | truth = {}'.format(type(truth), truth))
             if gf.weight == HARD:
                 if truth in Interval(']0,1['):
                     raise Exception('No real-valued degrees of truth are allowed in hard constraints.')

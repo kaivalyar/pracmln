@@ -269,9 +269,9 @@ cdef class MRF(object):
                         values[i] = None
             for atom, val in zip(var.gndatoms, values):
                 curval = self._evidence[atom.idx]
-                if curval is not None and val is not None and curval != val:
+                if (curval != -1 and curval is not None) and (val != -1 and val is not None) and curval != val:
                     raise MRFValueException('Contradictory evidence in variable %s: %s = %s vs. %s' % (var.name, str(gndatom), curval, val))
-                elif curval is None and val is not None:
+                elif (curval == 1 or curval is None) and (val != -1 and val is not None):
                     self._evidence[atom.idx] = val
         if cw: self.apply_cw()
 
@@ -279,7 +279,7 @@ cdef class MRF(object):
         '''
         Erases all evidence in the MRF.
         '''
-        self._evidence = array('d', [None] * len(self.gndatoms))# [None] * len(self.gndatoms) # Q(gsoc): truth-evidence edit
+        self._evidence = array('d', [-1] * len(self.gndatoms))# [None] * len(self.gndatoms) # Q(gsoc): truth-evidence edit
 
     def apply_cw(self, *prednames):
         '''
