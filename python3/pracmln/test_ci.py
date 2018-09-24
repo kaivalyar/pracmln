@@ -75,7 +75,7 @@ def test_inference_smokers_Gibbs_singlecore():#(capsys):
     global mln
     global db
     global expected_result
-    delta = 0.6
+    delta = 0.1
     print('=== INFERENCE TEST: GibbsSampler ===')
     r = query(queries='Cancer,Smokes,Friends',
           method='GibbsSampler',
